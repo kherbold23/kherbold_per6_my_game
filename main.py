@@ -60,7 +60,6 @@ for i in range(1,20):
     all_sprites.add(m)
     enemies.add(m)
     
-
 # game loop
 
 while RUNNING:
@@ -71,6 +70,9 @@ while RUNNING:
         # check for window closing
         if event.type == pg.QUIT:
             RUNNING = False
+        if event.type == pg.KEYDOWN:
+            if event.type == pg.K_ESCAPE:
+                PAUSED = True
             # break
     # print(get_mouse_now())
     ### update section of game loop (if updates take longer the 1/30th of a second, you will get laaaaag...)
