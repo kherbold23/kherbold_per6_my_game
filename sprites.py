@@ -124,3 +124,19 @@ class Platform(Sprite):
         self.rect.x = x
         self.rect.y = y
         self.variant = variant
+
+class UFO(Sprite):
+    def __init__(self, x, y, width, height, color, variant):
+        Sprite.__init__(self)
+        self.width = width
+        self.height = height
+        if x >=300 or x<100:
+            platform_vel*= -1
+        self.image = pg.Surface((self.width,self.height))
+        self.color = color
+        self.image.fill(self.color)
+        self.rect = self.image.get_rect()
+        self.rect.x = x
+        self.rect.y = y
+        self.variant = variant
+        

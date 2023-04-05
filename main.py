@@ -6,7 +6,19 @@
 
 
 '''
-My goals are:
+Game structure:
+GOALS; RULES; FEEDBACK; FREEDOM
+My goal is:
+
+to create moving platforms for the player to jump on in the shape of UFOs
+
+A mob that bounces along the floor...
+Player gets bounced away when colliding 
+
+Feature Creep
+Reach goal:
+use images and animated sprites...
+create rotating that rotates only when it goes in a direction
 
 
 
@@ -80,9 +92,12 @@ class Game:
                     self.player.jump()
     def update(self):
         self.all_sprites.update()
+        
+        # if the player is falling
         if self.player.vel.y > 0:
             hits = pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
+                self.player.standing = True
                 if hits[0].variant == "disappearing":
                     hits[0].kill()
                 elif hits[0].variant == "bouncey":
@@ -91,10 +106,14 @@ class Game:
                 else:
                     self.player.pos.y = hits[0].rect.top
                     self.player.vel.y = 0
+            else:
+                self.player.standing = False
 
     def draw(self):
         self.screen.fill(BLUE)
         self.all_sprites.draw(self.screen)
+        if self.player.standing:
+            self.draw_text("I hit a plat!", 24, WHITE, WIDTH/2, HEIGHT/2)
         # is this a method or a function?
         pg.display.flip()
     def draw_text(self, text, size, color, x, y):
