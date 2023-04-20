@@ -10,15 +10,9 @@ Game structure:
 GOALS; RULES; FEEDBACK; FREEDOM
 My goal is:
 
-to create moving platforms for the player to jump on in the shape of UFOs
+to create moving platforms for the player to jump on 
 
-A mob that bounces along the floor...
-Player gets bounced away when colliding 
 
-Feature Creep
-Reach goal:
-use images and animated sprites...
-create rotating that rotates only when it goes in a direction
 
 
 
@@ -38,11 +32,10 @@ from sprites import *
 game_folder = os.path.dirname(__file__)
 img_folder = os.path.join(game_folder, "img")
 
-# create game class in order to pass properties to the spirtes file
+# create game class 
 
 class Game:
     def __init__(self):
-        # init game window etc.
         pg.init()
         pg.mixer.init()
         self.screen = pg.display.set_mode((WIDTH, HEIGHT))
@@ -51,27 +44,34 @@ class Game:
         self.running = True
         print(self.screen)
     def new(self):
-        # starting a new game
+        # starting game
         self.score = 0
         self.all_sprites = pg.sprite.Group()
         self.platforms = pg.sprite.Group()
-        self.enemies = pg.sprite.Group()
+        self.water = pg.sprite.Group()
         self.player = Player(self)
-        self.plat1 = Platform(WIDTH, 50, 0, HEIGHT-50, (150,150,150), "normal")
-        # self.plat1 = Platform(WIDTH, 50, 0, HEIGHT-50, (150,150,150), "normal")
-        self.all_sprites.add(self.plat1)
-
-        self.platforms.add(self.plat1)
         
+        
+        self.plat1 = Platform(WIDTH, 50, 0, HEIGHT-50, (39,64,96), "normal")
+        self.plat2 = Platform(WIDTH, 500, 0, HEIGHT-50, (39,64,96), "normal")
+        # Creating the bottom platform
+        self.all_sprites.add(self.plat1)
+        self.platforms.add(self.plat1)
+        self.all_sprites.add(self.plat2)
+        self.platforms.add(self.plat2)
         self.all_sprites.add(self.player)
+        
+        # Creates the platforms 
         for plat in PLATFORM_LIST:
             p = Platform(*plat)
             self.all_sprites.add(p)
             self.platforms.add(p)
-        for i in range(0,10):
-            m = Mob(20,20,(0,255,0))
+        # Creates Mobs
+        for i in range(0,15):
+            m = Mob(20,20,(0,200,255))
             self.all_sprites.add(m)
-            self.enemies.add(m)
+            self.water.add(m)
+    # Draw and Update
         self.run()
     def run(self):
         self.playing = True
@@ -80,7 +80,7 @@ class Game:
             self.events()
             self.update()
             self.draw()
-    
+    # Allow jump via spacebar
     def events(self):
         for event in pg.event.get():
             if event.type == pg.QUIT:
@@ -90,14 +90,18 @@ class Game:
             if event.type == pg.KEYDOWN:
                 if event.key == pg.K_SPACE:
                     self.player.jump()
+    # Update to add score
     def update(self):
         self.all_sprites.update()
         
-        # if the player is falling
+        whits = pg.sprite.spritecollide(self.player, self.water, False)
+        
+        if whits:
+            self.score += 1
+        #type of platform the block hits and properties
         if self.player.vel.y > 0:
             hits = pg.sprite.spritecollide(self.player, self.platforms, False)
             if hits:
-                self.player.standing = True
                 if hits[0].variant == "disappearing":
                     hits[0].kill()
                 elif hits[0].variant == "bouncey":
@@ -106,16 +110,14 @@ class Game:
                 else:
                     self.player.pos.y = hits[0].rect.top
                     self.player.vel.y = 0
-            else:
-                self.player.standing = False
-
+# Draw background
     def draw(self):
-        self.screen.fill(BLUE)
+        self.screen.fill(BLACK)
         self.all_sprites.draw(self.screen)
-        if self.player.standing:
-            self.draw_text("I hit a plat!", 24, WHITE, WIDTH/2, HEIGHT/2)
-        # is this a method or a function?
+        
+        self.draw_text(str(self.score), 24, WHITE, 400, 5)
         pg.display.flip()
+# Draw text
     def draw_text(self, text, size, color, x, y):
         font_name = pg.font.match_font('arial')
         font = pg.font.Font(font_name, size)
@@ -126,11 +128,44 @@ class Game:
     def get_mouse_now(self):
         x,y = pg.mouse.get_pos()
         return (x,y)
+pg.font.init()
+font = pg.font.Font(None, 100)
+def display_countdown(current_time):
+    remaining_time = 10 - int(current_time / 1000)
+    if remaining_time < 0:
+        remaining_time = 0
+    text = font.render(str(remaining_time), True, (255, 0, 0))
+    text_rect = text.get_rect(center=(WIDTH // 2, HEIGHT // 2))
+    self.screen.blit(text, text_rect)
 
-# instantiate the game class...
+# Set the clock and start time
+clock = pg.time.Clock()
+start_time = pg.time.get_ticks()
+
+# Start the game loop
+
+while running:
+    # Handle events
+    for event in pg.event.get():
+        if event.type == pg.QUIT:
+            running = False
+
+    # Calculate the current time and display the countdown
+    current_time = pg.time.get_ticks() - start_time
+    display_countdown(current_time)
+
+    # Update the screen and control the frame rate
+    pg.display.flip()
+    clock.tick(60)
+
+    # Quit if the countdown is finished
+    if current_time >= 10000:
+        running = False
+
+
 g = Game()
 
-# kick off the game loop
+# game loop
 while g.running:
     g.new()
 
